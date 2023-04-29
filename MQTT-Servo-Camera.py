@@ -8,6 +8,7 @@ import random
 import os
 
 # -- Configurations --
+# -- This involves obtaining the necessary MQTT connection parameters and configuring the GPIO pins for the servo motor -- 
 MQTT_ADD = "Device's IP Address"
 MQTT_USR = "Device's Name"
 MQTT_PAS = "Device's Pass"
@@ -16,7 +17,8 @@ MQTT_TOP = "MQTT Topic"
 # Setting the GPIO Pin numbering mode
 GPIO.setmode(GPIO.BOARD)
 
-# Set pin 11 as an output and set servo as pin 11 PWM
+# -- Setting up the servo motor and starting it --
+# -- Set pin 11 as an output and set servo as pin 11 PWM --
 GPIO.setup(11, GPIO.OUT)
 servo = GPIO.PWM(11, 50) # Pin 11, 50 Hz pulse
 
@@ -30,8 +32,14 @@ angles = [0, 90, 180]
 def on_connect (client, userdata, flags, rc):
     """ The Callback when the cloent receives a CONNACK response from the Server """
     print("Connected with Result Code " + str(rc))
+    
+    # Subscribing to MQTT Topic
     client.subscribe(MQTT_TOP)
 
+"""
+Upon receiving the message, the motion sensor ID is checked and the servo motor angle is adjusted to turn the camera in the corresponding direction. 
+Due to the incompatibility of the camera with Python programming, an image is captured using a BASH file.
+"""
 def on_message(client, userdata, msg):
     """ The Callback when the PUBLISHED message is received from the Server """
     print(msg.topic + ": " + str(msg.payload))
