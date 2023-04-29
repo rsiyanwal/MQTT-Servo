@@ -8,10 +8,10 @@ import random
 import os
 
 # -- Configurations --
-MQTT_ADD = "192.168.4.4"
-MQTT_USR = "pi-101"
-MQTT_PAS = "pi"
-MQTT_TOP = "test_1"
+MQTT_ADD = "Device's IP Address"
+MQTT_USR = "Device's Name"
+MQTT_PAS = "Device's Pass"
+MQTT_TOP = "MQTT Topic"
 
 # Setting the GPIO Pin numbering mode
 GPIO.setmode(GPIO.BOARD)
@@ -24,7 +24,7 @@ servo = GPIO.PWM(11, 50) # Pin 11, 50 Hz pulse
 servo.start(0)
 
 # Angles
-angles = [0, 90, 180, 45, 115]
+angles = [0, 90, 180]
 
 # -- Connecting and Call Backs --
 def on_connect (client, userdata, flags, rc):
@@ -36,32 +36,33 @@ def on_message(client, userdata, msg):
     """ The Callback when the PUBLISHED message is received from the Server """
     print(msg.topic + ": " + str(msg.payload))
     
-    if str(msg.payload) == "b'E5'":
-        #ang = random.choice(angles)
-        ang = 0
+    # Rotating Left
+    if str(msg.payload) == "b'L'":
+        ang = angles[0]
         print("Angle is: ", ang)
         servo.ChangeDutyCycle(2 + (ang/18))
         time.sleep(0.5)
         servo.ChangeDutyCycle(0)
-        print(os.system("cd ~/bash && ./test2.sh"))
+        print(os.system("bash.sh"))
         
-    if str(msg.payload) == "b'E6'":
-        #ang = random.choice(angles)
-        ang = 90
+    # Rotating Center
+    if str(msg.payload) == "b'C'":
+        ang = angles[1]
         print("Angle is: ", ang)
         servo.ChangeDutyCycle(2 + (ang/18))
         time.sleep(0.5)
         servo.ChangeDutyCycle(0)
-        print(os.system("cd ~/bash && ./test2.sh"))
-        
-    if str(msg.payload) == "b'E7'":
-        #ang = random.choice(angles)
-        ang = 180
+        # Executing Bash Command to take and image and save it
+        print(os.system("bash.sh"))
+    
+    # Rotating Right
+    if str(msg.payload) == "b'R'":
+        ang = angles[2]
         print("Angle is: ", ang)
         servo.ChangeDutyCycle(2 + (ang/18))
         time.sleep(0.5)
         servo.ChangeDutyCycle(0)
-        print(os.system("cd ~/bash && ./test2.sh"))
+        print(os.system("bash.sh"))
     
 def main():
     mqtt_client = mqtt.Client();
